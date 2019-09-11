@@ -3,44 +3,6 @@ import unittest
 from pycdek import Client, AbstractOrder
 
 
-class TestCDEK(unittest.TestCase):
-    """
-    Базовые тесты для СДЭК без авторизации
-    """
-    def test_get_delivery_points(self):
-        response = Client.get_delivery_points(44)
-        self.assertIsInstance(response, list)
-        self.assertGreater(len(response), 0)
-
-    def test_get_shipping_cost(self):
-        response = Client.get_shipping_cost(44, 137, [11, 16, 137], goods=[
-            {'weight': 2, 'length': 100, 'width': 10, 'height': 20}
-        ])
-        self.assertIsInstance(response, dict)
-        self.assertIsNone(response.get('error'))
-
-
-class TestCDEKClient(unittest.TestCase):
-    """
-    Тестирование класса Client для работы со СДЭК
-    """
-
-    # 1. Данные класса клиента для авторизации
-    def test_get_user_info(self):
-        client = Client(login='login', password='pswd')
-        self.assertEqual(client._login, 'login')
-        self.assertEqual(client._password, 'pswd')
-
-    # 2. Выполнение запроса с неопознанным методом
-    def test__exec_request(self):
-        self.assertRaises(NotImplementedError, Client._exec_request, '', [], 'PUT')
-
-    # 3. Парсинг неокрректного xml
-    def test__parse_xml(self):
-        parsed_xml = Client._parse_xml('<note><to>Tove</too></note>')
-        self.assertIsNone(parsed_xml)
-
-
 # Класс-наследник от AbstractOrder для тестирования его неабстрактных методов
 class MyAbstractOrder(AbstractOrder):
 
@@ -180,7 +142,3 @@ class TestCDEKAbstractOrder(unittest.TestCase):
     # 27. Метод get_comment для не заданного значения
     def test_get_comment_None(self):
         self.assertEqual(self.order.get_comment(), '')
-
-
-if __name__ == '__main__':
-    unittest.main()
