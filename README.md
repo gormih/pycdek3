@@ -1,6 +1,7 @@
 # PyCDEK
 
 [![Build Status](https://travis-ci.com/kpodranyuk/pycdek.svg?branch=master)](https://travis-ci.com/kpodranyuk/pycdek)
+[![codecov](https://codecov.io/gh/kpodranyuk/pycdek/branch/master/graph/badge.svg)](https://codecov.io/gh/kpodranyuk/pycdek)
 
 Библиотека для работы с API транспортной компании [СДЭК](http://cdek.ru/).
 
