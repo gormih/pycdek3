@@ -10,5 +10,8 @@ branches:
   only:
   - master
 
+install:
+  - pip3 install coverage
+
 script:
-  - python test.py
+  - coverage run -m unittest discover
