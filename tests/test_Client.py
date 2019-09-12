@@ -37,12 +37,19 @@ class TestCDEKClient(unittest.TestCase):
 
         # Заказы, продублированные из example.py
         pickup_order = MyOrder()
+        pickup_order.sender_city_id = 44
+        pickup_order.sender_city_postcode = 111111
+        pickup_order.shipping_price = 0
         pickup_order.recipient_name = 'Иванов Иван Иванович'
         pickup_order.recipient_phone = '+7 (999) 999-99-99'
         pickup_order.recipient_city_id = 270  # Новосибирск
         pickup_order.recipient_city_postcode = 630066  # Новосибирск
         pickup_order.shipping_tariff = 136  # самовывоз
+        pickup_order.pvz_code = 'NSK71'
         pickup_order.is_paid = True
+        pickup_order_line = MyOrderLine(order=pickup_order)
+        pickup_order_line.quantity = 1
+        pickup_order.lines = [pickup_order_line]
         self.pickup_order = pickup_order
 
         delivery_order = MyOrder()
@@ -140,8 +147,8 @@ class TestCDEKClient(unittest.TestCase):
         secure_key = test_client._make_secure(date)
         self.assertEqual('81ad561784277fa864bf644d755fb164', secure_key)
 
-    # 5. Выполнение запроса на создание заказа
-    def test_create_order(self):
+    # 5. Выполнение запроса на создание заказа (доставка)
+    def test_create_order_delivery(self):
         client = self.client_IM
         order = self.delivery_order
         order.number = 1
@@ -149,11 +156,31 @@ class TestCDEKClient(unittest.TestCase):
         # Если в ответе с сервера нет поля ErrorCode, то создание прошло успешно
         self.assertFalse('ErrorCode' in response)
 
-    # 6. Выполнение запроса на удаление заказа
-    def test_delete_order(self):
+    # 6. Выполнение запроса на создание заказа (самовывоз)
+    def test_create_order_pickup(self):
+        client = self.client_IM
+        order = self.pickup_order
+        order.number = 2
+        response = client.create_order(order)
+        # Если в ответе с сервера нет поля ErrorCode, то создание прошло успешно
+        self.assertFalse('ErrorCode' in response)
+
+    # 7. Выполнение запроса на удаление заказа (доставка)
+    def test_delete_order_delivery(self):
         client = self.client_IM
         order = self.delivery_order
         order.number = 1
+        response = client.delete_order(order)
+        # Если в ответе с сервера нет поля ErrorCode, то удаление прошло успешно
+        self.assertFalse('ErrorCode' in response)
+
+    # 8. Выполнение запроса на удаление заказа (самовывоз)
+    # Данный тест добавлен для симметрии удаления созданного заказа
+    # (что создано должно быть удалено, чтобы не вызвать проблем при новых тестах)
+    def test_delete_order_pickup(self):
+        client = self.client_IM
+        order = self.pickup_order
+        order.number = 2
         response = client.delete_order(order)
         # Если в ответе с сервера нет поля ErrorCode, то удаление прошло успешно
         self.assertFalse('ErrorCode' in response)
