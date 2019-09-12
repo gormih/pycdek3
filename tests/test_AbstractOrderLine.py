@@ -1,29 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from pycdek import AbstractOrderLine
-
-
-class MyAbstractOrderLine(AbstractOrderLine):
-    """
-    Класс-наследник от AbstractOrderLine для тестирования
-    его неабстрактных методов.
-    Реализует абстрактные методы на уровне заглушек (возвращает None)
-    """
-
-    def get_product_upc(self):
-        return None
-
-    def get_product_weight(self):
-        return None
-
-    def get_product_price(self):
-        return None
-
-    def get_product_payment(self):
-        return None
-
-    def get_product_title(self):
-        return None
+from tests.helpers import MyOrderLine, MyOrder
 
 
 class TestCDEKAbstractOrderLine(unittest.TestCase):
@@ -31,23 +8,31 @@ class TestCDEKAbstractOrderLine(unittest.TestCase):
     Тестирование класса AbstractOrderLine (через наследника MyAbstractOrderLine)
     """
     def setUp(self):
-        self.order_line = MyAbstractOrderLine()
+        self.order_line = MyOrderLine()
+        self.order = MyOrder()
+        self.order.is_paid = True
 
     # 0. Покрываем тестами свою реализацию
     def test_get_product_upc(self):
-        self.assertEqual(self.order_line.get_product_upc(), None)
+        self.assertEqual(self.order_line.get_product_upc(), 1)
 
     def test_get_product_weight(self):
-        self.assertEqual(self.order_line.get_product_weight(), None)
+        self.assertEqual(self.order_line.get_product_weight(), 1000)
 
     def test_get_product_price(self):
-        self.assertEqual(self.order_line.get_product_price(), None)
+        self.assertEqual(self.order_line.get_product_price(), 500)
 
-    def test_get_product_payment(self):
-        self.assertEqual(self.order_line.get_product_payment(), None)
+    # Стоимость при неоплаченном заказе/отсутствии заказа
+    def test_get_product_payment_Product(self):
+        self.assertEqual(self.order_line.get_product_payment(), 500)
+
+    # Стоимость при оплаченном заказе
+    def test_get_product_payment_Parent(self):
+        self.order_line.parent_order = self.order
+        self.assertEqual(self.order_line.get_product_payment(), 0)
 
     def test_get_product_title(self):
-        self.assertEqual(self.order_line.get_product_title(), None)
+        self.assertEqual(self.order_line.get_product_title(), 'Шлакоблок')
 
     # 1. Метод get_quantity для не заданного значения
     def test_get_quantity_None(self):

@@ -1,14 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from pycdek import Client, AbstractOrder
-
-
-# Класс-наследник от AbstractOrder для тестирования его неабстрактных методов
-class MyAbstractOrder(AbstractOrder):
-
-    # Реализуем get_products (Возвращая None)
-    def get_products(self):
-        return None
+from tests.helpers import MyOrder
 
 
 class TestCDEKAbstractOrder(unittest.TestCase):
@@ -16,7 +8,7 @@ class TestCDEKAbstractOrder(unittest.TestCase):
     Тестирование класса AbstractOrder (через наследника MyAbstractOrder)
     """
     def setUp(self):
-        self.order = MyAbstractOrder()
+        self.order = MyOrder()
 
     # 0. Покрываем тестами свою реализацию
     def test_get_products(self):
