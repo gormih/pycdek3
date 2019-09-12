@@ -41,7 +41,7 @@ class TestCDEKClient(unittest.TestCase):
         pickup_order.recipient_phone = '+7 (999) 999-99-99'
         pickup_order.recipient_city_id = 270  # Новосибирск
         pickup_order.recipient_city_postcode = 630066  # Новосибирск
-        pickup_order.shipping_tariff = 137  # самовывоз
+        pickup_order.shipping_tariff = 136  # самовывоз
         pickup_order.is_paid = True
         self.pickup_order = pickup_order
 
@@ -57,7 +57,7 @@ class TestCDEKClient(unittest.TestCase):
         delivery_order.recipient_address_street = 'пр. Ленина'
         delivery_order.recipient_address_house = 1
         delivery_order.recipient_address_flat = 1
-        delivery_order.shipping_tariff = 136  # доставка курьером
+        delivery_order.shipping_tariff = 137  # доставка курьером
         delivery_order.comment = 'Позвонить за час'
         delivery_order.is_paid = False
 
@@ -113,7 +113,7 @@ class TestCDEKClient(unittest.TestCase):
         self.assertEqual(client._login, 'login')
         self.assertEqual(client._password, 'pswd')
 
-    # 6. Конвертация xml в dict
+    # 2. Конвертация xml в dict
     def test__xml_to_dict(self):
         # Используем созданный перед тестами пример xml
         xml = self.simple_xml
@@ -122,7 +122,7 @@ class TestCDEKClient(unittest.TestCase):
         xml_dict = Client._xml_to_dict(xml)
         self.assertEqual(xml_dict, expected_xml_dict)
 
-    # 8. Конвертация xml в строку
+    # 3. Конвертация xml в строку
     def test__xml_to_string(self):
         test_client = TestClient('login', 'password')
         # Используем созданный перед тестами пример xml
@@ -132,7 +132,7 @@ class TestCDEKClient(unittest.TestCase):
         xml_string = test_client._xml_to_string(xml)
         self.assertEqual(xml_string, expected_xml_string)
 
-    # 9. Генерация секретного ключа согласно документации
+    # 4. Генерация секретного ключа согласно документации
     def test__make_secure(self):
         date = '2016-09-25T12:45:10'
         # Из примера документации
@@ -140,10 +140,11 @@ class TestCDEKClient(unittest.TestCase):
         secure_key = test_client._make_secure(date)
         self.assertEqual('81ad561784277fa864bf644d755fb164', secure_key)
 
-    # 10. Выполнение запроса на создание заказа
+    # 5. Выполнение запроса на создание заказа
     def test_create_order(self):
         client = self.client_IM
         order = self.delivery_order
         order.number = 1
         response = client.create_order(order)
-        self.assertIsNotNone(response)
+        # Если в ответе с сервера нет поля ErrorCode, то создание прошло успешно
+        self.assertFalse('ErrorCode' in response)
