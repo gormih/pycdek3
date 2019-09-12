@@ -61,8 +61,8 @@ class AbstractOrder():
         return getattr(self, 'recipient_address_house')
 
     def get_recipient_address_flat(self):
-        """ Номер квартиры адреса доставки """
-        return getattr(self, 'recipient_address_flat')
+        """ Номер квартиры адреса доставки (необязательное поле)"""
+        return getattr(self, 'recipient_address_flat', '')
 
     def get_pvz_code(self):
         """ Код пункта самовывоза """
@@ -246,20 +246,22 @@ class Client(object):
             OrderCount='1'
         )
 
+        # 1.7 "Регистрация заказа от интернет магазина" - док-я v1.5
+        # Заказ
         order_element = ElementTree.SubElement(delivery_request_element, 'Order')
         order_element.attrib['Number'] = str(order.get_number())
         order_element.attrib['SendCityCode'] = str(order.get_sender_city_id())
         order_element.attrib['SendCityPostCode'] = str(order.get_sender_postcode())
         order_element.attrib['RecCityCode'] = str(order.get_recipient_city_id())
         order_element.attrib['RecCityPostCode'] = str(order.get_recipient_postcode())
-        order_element.attrib['RecipientName'] = order.get_recipient_name()
-        order_element.attrib['TariffTypeCode'] = str(order.get_shipping_tariff())
-        order_element.attrib['DeliveryRecipientCost'] = str(order.get_shipping_price())
-        order_element.attrib['Phone'] = str(order.get_recipient_phone())
-        order_element.attrib['Comment'] = order.get_comment()
-        order_element.attrib['SellerName'] = str(order.get_sender_name())
-        order_element.attrib['SendAddress'] = str(order.get_sender_address())
 
+        # 1.7.16
+        order_element.attrib['RecipientName'] = order.get_recipient_name()
+        # 1.7.18
+        order_element.attrib['Phone'] = str(order.get_recipient_phone())
+        order_element.attrib['TariffTypeCode'] = str(order.get_shipping_tariff())
+
+        # 1.7.27 - Адрес доставки
         address_element = ElementTree.SubElement(order_element, 'Address')
         if order.get_pvz_code():
             address_element.attrib['PvzCode'] = order.get_pvz_code()
@@ -268,14 +270,16 @@ class Client(object):
             address_element.attrib['House'] = str(order.get_recipient_address_house())
             address_element.attrib['Flat'] = str(order.get_recipient_address_flat())
 
+        # 1.7.28 - Упаковка
         package_element = ElementTree.SubElement(
             order_element,
             'Package',
             Number='%s1' % order.get_number(),
             BarCode='%s1' % order.get_number()
         )
-        total_weight = 0
 
+        total_weight = 0
+        # 1.7.28.7 - Товары
         for product in order.get_products():
             item_element = ElementTree.SubElement(
                 package_element,
@@ -291,6 +295,9 @@ class Client(object):
             total_weight += product.get_product_weight()
 
         package_element.attrib['Weight'] = str(total_weight)
+
+        order_element.attrib['DeliveryRecipientCost'] = str(order.get_shipping_price())
+        order_element.attrib['Comment'] = order.get_comment()
 
         xml = self._exec_xml_request(self.CREATE_ORDER_URL, delivery_request_element)
         return self._xml_to_dict(xml.find('Order'))
