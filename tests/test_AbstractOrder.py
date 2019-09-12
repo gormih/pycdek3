@@ -96,7 +96,7 @@ class TestCDEKAbstractOrder(unittest.TestCase):
 
     # 19. Метод get_recipient_address_flat для не заданного значения
     def test_get_recipient_address_flat_None(self):
-        self.assertRaises(AttributeError, self.order.get_recipient_address_flat)
+        self.assertEqual(self.order.get_recipient_address_flat(), '')
 
     # 20. Метод get_recipient_address_flat для заданного значения
     def test_get_recipient_address_flat_Value(self):
