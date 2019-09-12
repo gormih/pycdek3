@@ -320,7 +320,7 @@ class Client(object):
         )
 
         xml = self._exec_xml_request(self.DELETE_ORDER_URL, delete_request_element)
-        return self._xml_to_dict(xml.find('DeleteRequest'))
+        return self._xml_to_dict(xml.find('Order'))
 
     def get_orders_info(self, orders_dispatch_numbers):
         """
