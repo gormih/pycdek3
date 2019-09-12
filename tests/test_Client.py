@@ -148,3 +148,12 @@ class TestCDEKClient(unittest.TestCase):
         response = client.create_order(order)
         # Если в ответе с сервера нет поля ErrorCode, то создание прошло успешно
         self.assertFalse('ErrorCode' in response)
+
+    # 6. Выполнение запроса на удаление заказа
+    def test_delete_order(self):
+        client = self.client_IM
+        order = self.delivery_order
+        order.number = 1
+        response = client.delete_order(order)
+        # Если в ответе с сервера нет поля ErrorCode, то удаление прошло успешно
+        self.assertFalse('ErrorCode' in response)
