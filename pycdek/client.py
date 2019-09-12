@@ -119,6 +119,7 @@ class Client(object):
     DELIVERY_POINTS_URL = INTEGRATOR_URL + '/pvzlist.php'
     CALL_COURIER_URL = INTEGRATOR_URL + '/call_courier.php'
     array_tags = {'State', 'Delay', 'Good', 'Fail', 'Item', 'Package'}
+    ALLOWED_REQUEST_METHODS = ('GET', 'POST')
 
     def __init__(self, login, password):
         self._login = login
@@ -126,14 +127,24 @@ class Client(object):
 
     @classmethod
     def _exec_request(cls, url, data, method='GET'):
-        if method == 'GET':
-            request = urllib_request.Request(url + '?' + urlencode(data))
-        elif method == 'POST':
-            request = urllib_request.Request(url, data=data.encode('utf-8'))
-        else:
+        if not method in cls.ALLOWED_REQUEST_METHODS:
             raise NotImplementedError('Unknown method "%s"' % method)
-
-        return urllib_request.urlopen(request).read()
+        elif data is None or url is None:
+            raise AttributeError(
+                'Unsupported value. Check value of url and data before '
+                'calling _exec_request. '
+                'Current values: url={url}, data={data}'.format(url=url, data=data)
+            )
+        try:
+            if method == 'GET':
+                request = urllib_request.Request(url + '?' + urlencode(data))
+            elif method == 'POST':
+                request = urllib_request.Request(url, data=data.encode('utf-8'))
+            return urllib_request.urlopen(request).read()
+        except Exception as e:
+            raise Exception(
+                'Exception occured during _exec_request: {e}'.format(e=repr(e))
+            )
 
     @classmethod
     def _parse_xml(cls, data):
