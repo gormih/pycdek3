@@ -66,7 +66,7 @@ class TestCDEKClient(unittest.TestCase):
         delivery_order.recipient_address_street = 'пр. Ленина'
         delivery_order.recipient_address_house = 1
         delivery_order.recipient_address_flat = 1
-        delivery_order.shipping_tariff = 137  # доставка курьером
+        delivery_order.shipping_tariff = 139  # доставка дверь-дверь
         delivery_order.comment = 'Позвонить за час'
         delivery_order.is_paid = False
 
@@ -234,7 +234,74 @@ class TestCDEKClient(unittest.TestCase):
         # Если в ответе с сервера нет поля ErrorCode, то вызов курьера прошел успешно
         self.assertFalse('ErrorCode' in response)
 
-    # 11. Выполнение запроса на удаление заказа (доставка)
+    # 12. Выполнение запроса на вызов курьера (с dispatch_number)
+    def test_call_courier_DN(self):
+        client = self.client_IM
+        order = self.delivery_order
+        dn = self.__dms[0] if isinstance(self.__dms, list) \
+             and len(self.__dms) > 0 else ''
+        # Ожидание курьера
+        call_params = {
+            'date': datetime.date.today() + datetime.timedelta(days=1),
+            'time_beg': datetime.time(13, 0, 0),
+            'time_end': datetime.time(17, 15, 0),
+            # 'send_city_code': order.get_sender_city_id(), значение из накладной
+            'send_city_postcode': order.get_sender_postcode(),
+            'send_phone': '+7 (999) 999-99-88', # т.к. нет в накладной
+            'sender_name': 'Отправитель Отправителевич Отправителев', # т.к. нет в накладной
+            # 'weight': 1000, значение из накладной
+            'address': {
+                'street': 'Уличная',
+                'house': '1',
+                'flat': '1'
+            }
+        }
+        response = client.call_courier(call_params, dispatch_number=dn)
+        # Если в ответе с сервера нет поля ErrorCode, то вызов курьера прошел успешно
+        self.assertFalse('ErrorCode' in response)
+
+    # 13. Выполнение запроса на вызов курьера
+    # ошибка: call_params = None
+    def test_call_courier_error_CP_None(self):
+        client = self.client_IM
+        self.assertRaises(AttributeError, client.call_courier, None)
+
+    # 14. Выполнение запроса на вызов курьера
+    # ошибка: call_params != dict
+    def test_call_courier_error_CP_Not_Dict(self):
+        client = self.client_IM
+        self.assertRaises(AttributeError, client.call_courier, ['a', 'b'])
+
+    # 15. Выполнение запроса на вызов курьера
+    # ошибка: отсутствует обязательный параметр
+    def test_call_courier_error_CP_Not_Full(self):
+        client = self.client_IM
+        self.assertRaises(AttributeError, client.call_courier, {
+            'send_phone': '+7 (999) 999-99-88',
+            'sender_name': 'Отправитель Отправителевич Отправителев'
+        })
+
+    # 16. Выполнение запроса на вызов курьера
+    # ошибка: отсутствует обязательный параметр у адреса
+    def test_call_courier_error_CP_Address_Not_Full(self):
+        client = self.client_IM
+        order = self.delivery_order
+        self.assertRaises(AttributeError, client.call_courier, {
+            'date': datetime.date.today() + datetime.timedelta(days=1),
+            'time_beg': datetime.time(13, 0, 0),
+            'time_end': datetime.time(17, 15, 0),
+            'send_city_code': order.get_sender_city_id(),
+            'send_city_postcode': order.get_sender_postcode(),
+            'send_phone': '+7 (999) 999-99-88',
+            'sender_name': 'Отправитель Отправителевич Отправителев',
+            'weight': 1000,
+            'address': {
+                'street': 'Уличная',
+                'flat': '1'
+            }
+        })
+
+    # 17. Выполнение запроса на удаление заказа (доставка)
     def test_delete_order_delivery(self):
         client = self.client_IM
         order = self.delivery_order
@@ -243,7 +310,7 @@ class TestCDEKClient(unittest.TestCase):
         # Если в ответе с сервера нет поля ErrorCode, то удаление прошло успешно
         self.assertFalse('ErrorCode' in response)
 
-    # 11. Выполнение запроса на удаление заказа (самовывоз)
+    # 18. Выполнение запроса на удаление заказа (самовывоз)
     # Данный тест добавлен для симметрии удаления созданного заказа
     # (что создано должно быть удалено, чтобы не вызвать проблем при новых тестах)
     def test_delete_order_pickup(self):
