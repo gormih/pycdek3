@@ -301,7 +301,32 @@ class TestCDEKClient(unittest.TestCase):
             }
         })
 
-    # 17. Выполнение запроса на удаление заказа (доставка)
+    # 17. Выполнение запроса на вызов курьера
+    # ошибка: HTTPError во время запроса
+    def test_call_courier_HTTP_error(self):
+        client = TestClient('login', 'password')
+        order = self.delivery_order
+        # Ожидание курьера
+        call_params = {
+            'date': datetime.date.today() + datetime.timedelta(days=1),
+            'time_beg': datetime.time(13, 0, 0),
+            'time_end': datetime.time(17, 15, 0),
+            'send_city_code': order.get_sender_city_id(),
+            'send_city_postcode': order.get_sender_postcode(),
+            'send_phone': '+7 (999) 999-99-88',
+            'sender_name': 'Отправитель Отправителевич Отправителев',
+            'weight': 1000,
+            'address': {
+                'street': 'Уличная',
+                'house': '1',
+                'flat': '1'
+            }
+        }
+        response = client.call_courier(call_params)
+        # Если в ответе с сервера нет поля ErrorCode, то вызов курьера прошел успешно
+        self.assertIsNone(response)
+
+    # 18. Выполнение запроса на удаление заказа (доставка)
     def test_delete_order_delivery(self):
         client = self.client_IM
         order = self.delivery_order
@@ -310,7 +335,7 @@ class TestCDEKClient(unittest.TestCase):
         # Если в ответе с сервера нет поля ErrorCode, то удаление прошло успешно
         self.assertFalse('ErrorCode' in response)
 
-    # 18. Выполнение запроса на удаление заказа (самовывоз)
+    # 19. Выполнение запроса на удаление заказа (самовывоз)
     # Данный тест добавлен для симметрии удаления созданного заказа
     # (что создано должно быть удалено, чтобы не вызвать проблем при новых тестах)
     def test_delete_order_pickup(self):
