@@ -6,8 +6,8 @@ class MyOrder(AbstractOrder):
     """
     Класс-наследник от AbstractOrder для тестирования
     """
-    def __init__(self, id=1, lines=None, **kwargs):
-        self.id = id
+    def __init__(self, id_value=1, lines=None):
+        self.id = id_value
         self.lines = lines
 
     # Список товаров в заказе

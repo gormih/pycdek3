@@ -14,7 +14,6 @@ class TestCDEKAbstractOrder(unittest.TestCase):
     def test_get_products(self):
         self.assertEqual(self.order.get_products(), None)
 
-
     # 1. Метод get_number для не заданного значения
     def test_get_number_None(self):
         self.assertRaises(AttributeError, self.order.get_number)

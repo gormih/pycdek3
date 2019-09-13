@@ -127,7 +127,7 @@ class Client(object):
 
     @classmethod
     def _exec_request(cls, url, data, method='GET'):
-        if not method in cls.ALLOWED_REQUEST_METHODS:
+        if method not in cls.ALLOWED_REQUEST_METHODS:
             raise NotImplementedError('Unknown method "%s"' % method)
         elif data is None or url is None:
             raise AttributeError(
@@ -136,6 +136,7 @@ class Client(object):
                 'Current values: url={url}, data={data}'.format(url=url, data=data)
             )
         try:
+            request = ''
             if method == 'GET':
                 request = urllib_request.Request(url + '?' + urlencode(data))
             elif method == 'POST':
@@ -176,8 +177,8 @@ class Client(object):
         Возвращает информацию о стоимости и сроках доставки
         Для отправителя и получателя обязателен один из параметров:
         *_city_id или *_city_postcode внутри *_city_data
-        :param sender_city_data: ID города отправителя по базе СДЭК
-        :param recipient_city_data: ID города получателя по базе СДЭК
+        :param sender_city_id: ID города отправителя по базе СДЭК
+        :param receiver_city_id: ID города получателя по базе СДЭК
         :param tariffs: список тарифов
         :param goods: список товаров
         :returns dict

@@ -238,8 +238,9 @@ class TestCDEKClient(unittest.TestCase):
     def test_call_courier_DN(self):
         client = self.client_IM
         order = self.delivery_order
-        dn = self.__dms[0] if isinstance(self.__dms, list) \
-             and len(self.__dms) > 0 else ''
+        dn = ''
+        if isinstance(self.__dms, list) and len(self.__dms) > 0:
+            dn = self.__dms[0]
         # Ожидание курьера
         call_params = {
             'date': datetime.date.today() + datetime.timedelta(days=1),
@@ -247,8 +248,8 @@ class TestCDEKClient(unittest.TestCase):
             'time_end': datetime.time(17, 15, 0),
             # 'send_city_code': order.get_sender_city_id(), значение из накладной
             'send_city_postcode': order.get_sender_postcode(),
-            'send_phone': '+7 (999) 999-99-88', # т.к. нет в накладной
-            'sender_name': 'Отправитель Отправителевич Отправителев', # т.к. нет в накладной
+            'send_phone': '+7 (999) 999-99-88',  # т.к. нет в накладной
+            'sender_name': 'Отправитель Отправителевич Отправителев',  # т.к. нет в накладной
             # 'weight': 1000, значение из накладной
             'address': {
                 'street': 'Уличная',
