@@ -201,7 +201,15 @@ class TestCDEKClient(unittest.TestCase):
         for resp in response:
             self.assertFalse('ErrorCode' in resp)
 
-    # 10. Выполнение запроса на удаление заказа (доставка)
+    # 10. Выполнение запроса на печать квитанций заказов
+    def test__get_orders_print(self):
+        client = self.client_IM
+        dms = self.__dms
+        response = client.get_orders_print(dms)
+        # Если None, то произошла ошибка
+        self.assertIsNotNone(response)
+
+    # 11. Выполнение запроса на удаление заказа (доставка)
     def test_delete_order_delivery(self):
         client = self.client_IM
         order = self.delivery_order
