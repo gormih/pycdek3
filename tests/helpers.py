@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pycdek import AbstractOrder, AbstractOrderLine
+from pycdek3 import AbstractOrder, AbstractOrderLine
 
 
 class MyOrder(AbstractOrder):

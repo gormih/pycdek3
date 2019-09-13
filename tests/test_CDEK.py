@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from pycdek import Client
+from pycdek3 import Client
 
 
 class TestCDEKClientStatic(unittest.TestCase):

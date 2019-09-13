@@ -1,12 +1,12 @@
 from setuptools import setup
-from pycdek import __version__
+from pycdek3 import __version__
 
 with open("README.md", "r", encoding='utf-8') as fh:
     long_description = fh.read()
 
 setup(
     name='pycdek3',
-    url='https://github.com/kpodranyuk/pycdek',
+    url='https://github.com/kpodranyuk/pycdek3',
     version=__version__,
     description='Python3 client for CDEK API',
     long_description=long_description,
@@ -14,9 +14,9 @@ setup(
     author='Ekaterina Podranyuk',
     author_email='katherineswork44@gmail.com',
     license='MIT',
-    packages=['pycdek'],
-    package_data={'pycdek': [
-        'pycdek/*.py',
+    packages=['pycdek3'],
+    package_data={'pycdek3': [
+        'pycdek3/*.py',
     ]},
     classifiers=[
         'Development Status :: 4 - Beta',

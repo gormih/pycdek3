@@ -3,7 +3,7 @@ import unittest
 import datetime
 from xml.etree import ElementTree
 
-from pycdek import Client
+from pycdek3 import Client
 from tests.helpers import MyOrder, MyOrderLine
 
 
