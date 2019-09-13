@@ -1,4 +1,4 @@
-# PyCDEK
+# PyCDEK3
 
 [![Build Status](https://travis-ci.com/kpodranyuk/pycdek.svg?branch=master)](https://travis-ci.com/kpodranyuk/pycdek)
 [![codecov](https://codecov.io/gh/kpodranyuk/pycdek/branch/master/graph/badge.svg)](https://codecov.io/gh/kpodranyuk/pycdek)
@@ -9,11 +9,12 @@
 
 Общая информация об интеграции СДЭК указана на [сайте транспортной компании](https://www.cdek.ru/clients/integrator.html).
 
-Данный репозиторий является форком [pycdek](https://github.com/onrik/pycdek), написанного onrik. В отличие от оргинального pycdek, в текущем добавлена поддержка pyhton 3 версии (3.4+). 
+Данный репозиторий является форком [pycdek](https://github.com/onrik/pycdek), написанного onrik. 
+В отличие от оргинального pycdek, в текущем добавлена поддержка python 3 версии (3.4+), обновление информации для текущей версии API и полное тестирование проекта. 
 
-## Установка оригинального pycdek:
+## Установка pycdek3:
 ```
-   pip install pycdek
+   pip install pycdek3
 ```
 
 ## Пример использования:
