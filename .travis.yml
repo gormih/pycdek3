@@ -1,18 +1,23 @@
 language: python
 
-python:
-  - "3.4"
-  - "3.5"
-  - "3.6"      # current default Python on Travis CI
-  - "3.7"
+jobs:
+  include:
+  - stage: 3.4 Test
+    python: "3.4"
+  - stage: 3.5 Test
+    python: "3.5"
+  - stage: 3.6 Test
+    python: "3.6"
+  - stage: 3.7 Test
+    python: "3.7"
 
 branches:
   only:
   - master
 
 install:
-  - pip3 install coverage
-  - pip3 install codecov
+  - pip install coverage
+  - pip install codecov
 
 script:
   - coverage run -m unittest discover
