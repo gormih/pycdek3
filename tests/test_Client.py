@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
+import datetime
 from xml.etree import ElementTree
 
 from pycdek import Client
@@ -208,6 +209,30 @@ class TestCDEKClient(unittest.TestCase):
         response = client.get_orders_print(dms)
         # Если None, то произошла ошибка
         self.assertIsNotNone(response)
+
+    # 11. Выполнение запроса на вызов курьера (без dispatch_number)
+    def test_call_courier(self):
+        client = self.client_IM
+        order = self.delivery_order
+        # Ожидание курьера
+        call_params = {
+            'date': datetime.date.today() + datetime.timedelta(days=1),
+            'time_beg': datetime.time(13, 0, 0),
+            'time_end': datetime.time(17, 15, 0),
+            'send_city_code': order.get_sender_city_id(),
+            'send_city_postcode': order.get_sender_postcode(),
+            'send_phone': '+7 (999) 999-99-88',
+            'sender_name': 'Отправитель Отправителевич Отправителев',
+            'weight': 1000,
+            'address': {
+                'street': 'Уличная',
+                'house': '1',
+                'flat': '1'
+            }
+        }
+        response = client.call_courier(call_params)
+        # Если в ответе с сервера нет поля ErrorCode, то вызов курьера прошел успешно
+        self.assertFalse('ErrorCode' in response)
 
     # 11. Выполнение запроса на удаление заказа (доставка)
     def test_delete_order_delivery(self):

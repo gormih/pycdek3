@@ -391,53 +391,99 @@ class Client(object):
 
         return response if not response.startswith(b'<?xml') else None
 
-    def call_courier(self, date, time_begin, time_end, sender_city_id,
-                     sender_phone, sender_name, weight, address_street,
-                     address_house, address_flat,
-                     comment='', lunch_begin=None, lunch_end=None):
+    def call_courier(self, call_params, dispatch_number=None, comment=''):
         """
         Вызов курьера
-        :param date: дата ожидания курьера
-        :param time_begin: время начала ожидания
-        :param time_end: время окончания ожидания
-        :param sender_city_id: ID города отправителя по базе СДЭК
-        :param sender_phone: телефон оправителя
-        :param sender_name: ФИО оправителя
-        :param weight: общий вес в граммах
+        :param call_params: dict с описанием параметров вызова курьера с полями:
+            - date: дата ожидания курьера - REQUIRED
+            - time_beg: время начала ожидания курьера - REQUIRED
+            - time_end: время окончания ожидания курьера - REQUIRED
+            - send_city_code: код города отправителя
+                - REQUIRED if not dispatch_number
+            - send_city_postcode: почтовый индекс города отправителя - REQUIRED
+            - send_phone: контактный телефон отправителя
+                - REQUIRED if not dispatch_number or
+                (dispatch_number и телефон не указан в накладной)
+            - sender_name: отправитель (ФИО)
+                - REQUIRED if not dispatch_number or
+                (dispatch_number и ФИО не указаны в накладной)
+            - weight: общий вес, в граммах - REQUIRED if not dispatch_number
+            - address: адрес отправителя - REQUIRED:
+                - street - улица отправителя - REQUIRED
+                - house - дом, корпус, строение отправителя - REQUIRED
+                - flat - квартира/офис отправителя - REQUIRED
+        :param dispatch_number: str с номером привязанного заказа
         :param comment: комментарий
-        :param lunch_begin: время начала обеда
-        :param lunch_end: время окончания обеда
-        :returns bool
+        :returns xml с ответом (None в случае исключения во время запроса)
         """
+
+        if not call_params or not isinstance(call_params, dict):
+            raise AttributeError('Неверный словарь параметров для вызова курьера')
+
+        # Обязательные параметры
+        required_keys = [
+            'date', 'time_beg', 'time_end',
+            'send_city_postcode', 'address'
+        ]
+        # Обязательные параметры адреса
+        required_keys_address = ('street', 'house', 'flat')
+        # Обязательные параметры при отсутствии dispatch_number
+        if not dispatch_number:
+            required_keys += [
+                'send_city_code', 'send_phone', 'sender_name', 'weight'
+            ]
+
+        # Проверяем словарь с параметрами:
+        for key in required_keys:
+            if key not in call_params:
+                raise AttributeError(
+                    'Отсутствует обязательный параметр {key} '
+                    'для вызова курьера'.format(key=key)
+                )
+            if key == 'address':
+                for address_key in required_keys_address:
+                    if address_key not in call_params[key]:
+                        raise AttributeError(
+                            'Отсутствует обязательный параметр адреса {key} '
+                            'для вызова курьера'.format(key=address_key)
+                        )
+
+        # Формируем XML для запроса
         call_courier_element = ElementTree.Element('CallCourier', CallCount='1')
         call_element = ElementTree.SubElement(
             call_courier_element,
             'Call',
-            Date=date.isoformat(),
-            TimeBeg=time_begin.isoformat(),
-            TimeEnd=time_end.isoformat()
+            Date=call_params['date'].isoformat(),
+            TimeBeg=call_params['time_beg'].isoformat(),
+            TimeEnd=call_params['time_end'].isoformat()
         )
-        call_element.attrib['SendCityCode'] = str(sender_city_id)
-        call_element.attrib['SendPhone'] = str(sender_phone)
-        call_element.attrib['SenderName'] = sender_name
-        call_element.attrib['Weight'] = str(weight)
-        call_element.attrib['Comment'] = comment
-        if lunch_begin:
-            call_element.attrib['LunchBeg'] = lunch_begin.isoformat()
-        if lunch_end:
-            call_element.attrib['LunchEnd'] = lunch_end.isoformat()
+        call_element.attrib['SendCityPostCode'] = str(call_params['send_city_postcode'])
 
+        # Необязательные параметры запроса
+        if 'send_city_code' in call_params:
+            call_element.attrib['SendCityCode'] = str(call_params['send_city_code'])
+        if 'send_phone' in call_params:
+            call_element.attrib['SendPhone'] = str(call_params['send_phone'])
+        if 'sender_name' in call_params:
+            call_element.attrib['SenderName'] = str(call_params['sender_name'])
+        if 'weight' in call_params:
+            call_element.attrib['Weight'] = str(call_params['weight'])
+        if dispatch_number:
+            call_element.attrib['DispatchNumber'] = str(dispatch_number)
+        call_element.attrib['Comment'] = comment
+
+        # Адрес отправителя
         ElementTree.SubElement(
             call_element,
             'Address',
-            Street=address_street,
-            House=str(address_house),
-            Flat=str(address_flat)
+            Street=str(call_params['address']['street']),
+            House=str(call_params['address']['house']),
+            Flat=str(call_params['address']['flat'])
         )
 
         try:
-            self._exec_xml_request(self.CALL_COURIER_URL, call_courier_element)
+            xml = self._exec_xml_request(self.CALL_COURIER_URL, call_courier_element)
         except HTTPError:
-            return False
+            return None
         else:
-            return True
+            return self._xml_to_dict(xml.find('Call'))
