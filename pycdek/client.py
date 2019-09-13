@@ -141,6 +141,8 @@ class Client(object):
             elif method == 'POST':
                 request = urllib_request.Request(url, data=data.encode('utf-8'))
             return urllib_request.urlopen(request).read()
+        except HTTPError as he:
+            raise he
         except Exception as e:
             raise Exception(
                 'Exception occured during _exec_request: {e}'.format(e=repr(e))
