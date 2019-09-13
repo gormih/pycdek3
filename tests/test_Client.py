@@ -172,6 +172,7 @@ class TestCDEKClient(unittest.TestCase):
         # Если в ответе с сервера нет поля ErrorCode, то создание прошло успешно
         self.assertFalse('ErrorCode' in response)
 
+    # 7. Выполнение запроса на получение информации о заказах
     def test__get_orders_info(self):
         client = self.client_IM
         dms = self.__dms
@@ -180,7 +181,7 @@ class TestCDEKClient(unittest.TestCase):
         for resp in response:
             self.assertFalse('ErrorCode' in resp)
 
-    # 7. Выполнение запроса на удаление заказа (доставка)
+    # 8. Выполнение запроса на удаление заказа (доставка)
     def test_delete_order_delivery(self):
         client = self.client_IM
         order = self.delivery_order
@@ -189,7 +190,7 @@ class TestCDEKClient(unittest.TestCase):
         # Если в ответе с сервера нет поля ErrorCode, то удаление прошло успешно
         self.assertFalse('ErrorCode' in response)
 
-    # 8. Выполнение запроса на удаление заказа (самовывоз)
+    # 9. Выполнение запроса на удаление заказа (самовывоз)
     # Данный тест добавлен для симметрии удаления созданного заказа
     # (что создано должно быть удалено, чтобы не вызвать проблем при новых тестах)
     def test_delete_order_pickup(self):
