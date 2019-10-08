@@ -171,6 +171,30 @@ class Client(object):
 
         return result
 
+    def get_shipping_cost_IM(self, sender_city_id, receiver_city_id, tariffs, goods):
+        u"""
+        Возвращает информацию о стоимости и сроках доставки,
+        включая тарифы для Интернет Магазинов (аналогично методу get_shipping_cost)
+        :param sender_city_id: ID города отправителя по базе СДЭК
+        :param receiver_city_id: ID города получателя по базе СДЭК
+        :param tariffs: список тарифов
+        :param goods: список товаров
+        :return: dict
+        """
+        auth = self._make_auth(use_time=False)
+        params = {
+            'version': '1.0',
+            'authLogin': auth['Account'],
+            'secure': auth['Secure'],
+            'dateExecute': auth['Date'],
+            'senderCityId': sender_city_id,
+            'receiverCityId': receiver_city_id,
+            'tariffList': [{'priority': i, 'id': tariff} for i, tariff in enumerate(tariffs, 1)],
+            'goods': goods,
+        }
+
+        return json.loads(self._exec_request(self.CALCULATOR_URL, json.dumps(params), 'POST').decode('utf-8'))
+
     @classmethod
     def get_shipping_cost(cls, sender_city_id, receiver_city_id, tariffs, goods):
         """
@@ -188,7 +212,7 @@ class Client(object):
             'dateExecute': datetime.date.today().isoformat(),
             'senderCityId': sender_city_id,
             'receiverCityId': receiver_city_id,
-            'tariffList': [{'priority': -i, 'id': tariff} for i, tariff in enumerate(tariffs, 1)],
+            'tariffList': [{'priority': i, 'id': tariff} for i, tariff in enumerate(tariffs, 1)],
             'goods': goods,
         }
 
@@ -218,10 +242,10 @@ class Client(object):
         return b'<?xml version="1.0" encoding="UTF-8" ?>' + buff.getvalue()
 
     def _exec_xml_request(self, url, xml_element):
-        date = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-        xml_element.attrib['Date'] = date
-        xml_element.attrib['Account'] = self._login
-        xml_element.attrib['Secure'] = self._make_secure(date)
+        auth = self._make_auth(use_time=True)
+        xml_element.attrib['Date'] = auth['Date']
+        xml_element.attrib['Account'] = auth['Account']
+        xml_element.attrib['Secure'] = auth['Secure']
 
         response = self._exec_request(
             url,
@@ -229,6 +253,19 @@ class Client(object):
             method='POST'
         )
         return self._parse_xml(response)
+
+    def _make_auth(self, use_time=False):
+        u"""
+        Формирует данные авторизации для ИМ, необходимые для запросов
+        :return: dict
+        """
+        format_string = '%Y-%m-%dT%H:%M:%S' if use_time else '%Y-%m-%d'
+        date = datetime.datetime.now().strftime(format_string)
+        return {
+            "Date": date,
+            "Account": self._login,
+            "Secure": self._make_secure(date),
+        }
 
     def _make_secure(self, date):
         code = '{}&{}'.format(date, self._password)

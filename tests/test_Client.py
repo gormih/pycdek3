@@ -332,3 +332,16 @@ class TestCDEKClient(unittest.TestCase):
         response = client.delete_order(order)
         # Если в ответе с сервера нет поля ErrorCode, то удаление прошло успешно
         self.assertFalse('ErrorCode' in response)
+
+    # 20. Расчет стоимости доставки для Интернет магазина
+    def test_get_shipping_cost(self):
+        client = self.client_IM
+        # 136 - 139 - коды тарифов для ИМ:
+        # С-С, С-Д, Д-С, Д-Д, где С - склад, Д - дверь
+        response = client.get_shipping_cost_IM(
+            44, 137, [136, 137, 138, 139], goods=[
+                {'weight': 2, 'length': 100, 'width': 10, 'height': 20}
+            ]
+        )
+        self.assertIsInstance(response, dict)
+        self.assertIsNone(response.get('error'))
