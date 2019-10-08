@@ -3,22 +3,8 @@ import unittest
 import datetime
 from xml.etree import ElementTree
 
-from pycdek3 import Client
+from pycdek3 import Client, TestClient
 from tests.helpers import MyOrder, MyOrderLine
-
-
-class TestClient(Client):
-    """
-    Переопределенный класс для замены API url для тестирования
-    """
-    INTEGRATOR_URL = 'https://integration.edu.cdek.ru'
-    CREATE_ORDER_URL = INTEGRATOR_URL + '/new_orders.php'
-    DELETE_ORDER_URL = INTEGRATOR_URL + '/delete_orders.php'
-    ORDER_STATUS_URL = INTEGRATOR_URL + '/status_report_h.php'
-    ORDER_INFO_URL = INTEGRATOR_URL + '/info_report.php'
-    ORDER_PRINT_URL = INTEGRATOR_URL + '/orders_print.php'
-    DELIVERY_POINTS_URL = INTEGRATOR_URL + '/pvzlist.php'
-    CALL_COURIER_URL = INTEGRATOR_URL + '/call_courier.php'
 
 
 class TestCDEKClient(unittest.TestCase):

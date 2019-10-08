@@ -490,3 +490,18 @@ class Client(object):
             return None
         else:
             return self._xml_to_dict(xml.find('Call'))
+
+
+class TestClient(Client):
+    u"""
+    Переопределенный класс клиента для тестирования
+    """
+    INTEGRATOR_URL = 'https://integration.edu.cdek.ru'
+    CALCULATOR_URL = 'http://api.edu.cdek.ru/calculator/calculate_price_by_json.php'
+    CREATE_ORDER_URL = INTEGRATOR_URL + '/new_orders.php'
+    DELETE_ORDER_URL = INTEGRATOR_URL + '/delete_orders.php'
+    ORDER_STATUS_URL = INTEGRATOR_URL + '/status_report_h.php'
+    ORDER_INFO_URL = INTEGRATOR_URL + '/info_report.php'
+    ORDER_PRINT_URL = INTEGRATOR_URL + '/orders_print.php'
+    DELIVERY_POINTS_URL = INTEGRATOR_URL + '/pvzlist.php'
+    CALL_COURIER_URL = INTEGRATOR_URL + '/call_courier.php'
